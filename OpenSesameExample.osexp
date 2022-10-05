@@ -1,7 +1,7 @@
 ---
 API: 2.1
-OpenSesame: 3.3.4a8
-Platform: posix
+OpenSesame: 3.3.10
+Platform: nt
 ---
 set width 1024
 set uniform_coordinates yes
@@ -26,7 +26,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "/home/maarten/Documents/PhD/user-models-2020"
+set experiment_path "C:\\Users\\stefa\\Uni\\UM\\user-models-2020"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -173,14 +173,112 @@ define inline_script slimstampen_setup
 	m = SpacingModel()
 	
 	# Add some study facts to the model (you could also read them from a CSV file)
-	facts = [Fact(1, "hello", "bonjour"),
-			Fact(2, "dog", "chien"),
-			Fact(3, "cat", "chat"),
-			Fact(4, "computer", "ordinateur"),
-			Fact(5, "house", "maison"),
-			Fact(6, "car", "voiture"),
-			Fact(7, "fish", "poisson"),
-			Fact(8, "bottle", "bouteille")]
+	facts = [Fact(1, "five", "tano"),
+			Fact(2, "woman", "mwanamke"),
+			Fact(3, "fish", "samaki"),
+			Fact(4, "bird", "ndege"),
+			Fact(5, "dog", "mbwa"),
+			Fact(6, "snake", "nyoka"),
+			Fact(7, "tree", "mti"),
+			Fact(8, "leaf", "jani"),
+			Fact(9, "egg", "yai"),
+			Fact(10, "bone", "mfupa"),
+			Fact(11, "feather", "unyoya"),
+			Fact(12, "foot", "mguu"),
+			Fact(13, "eye", "jicho"),
+			Fact(14, "heart", "moyo"),
+			Fact(15, "sun", "jua"),
+			Fact(16, "moon", "mwezi"),
+			Fact(17, "sea", "bahari"),
+			Fact(18, "sand", "mchanga"),
+			Fact(19, "cloud", "wingu"),
+			Fact(20, "snow", "theluji"),
+			Fact(21, "fire", "moto"),
+			Fact(22, "smoke", "moshinyoka"),
+			Fact(23, "mountain", "mlima"),
+			Fact(24, "house", "nyumba"),
+			Fact(25, "picture", "picha"),
+			Fact(26, "plant", "kupanda"),
+			Fact(27, "city", "mji"),
+			Fact(28, "book", "kitabu"),
+			Fact(29, "car", "gari"),
+			Fact(30, "ship", "meli"),
+			Fact(31, "wheel", "gurudumu"),
+			Fact(32, "plane", "ndege"),
+			Fact(33, "table", "meza"),
+			Fact(34, "money", "fedha"),
+			Fact(35, "bed", "kitanda"),
+			Fact(36, "circle", "mzunguko"),
+			Fact(37, "train", "treni"),
+			Fact(38, "window", "dirisha"),
+			Fact(39, "cow", "ng'ombe"),
+			Fact(40, "bear", "kubeba"),
+			Fact(41, "garden", "bustani"),
+			Fact(42, "key", "ufunguo"),
+			Fact(43, "cat", "paka"),
+			Fact(44, "doctor", "daktari"),
+			Fact(45, "soldier", "askari"),
+			Fact(46, "dollar", "dola"),
+			Fact(47, "clock", "saa"),
+			Fact(48, "gun", "bunduki"),
+			Fact(49, "duck", "bata"),
+			Fact(50, "magnet", "sumaku"),
+			Fact(51, "apple", "mboni"),
+			Fact(52, "giraffe", "twiga"),
+			Fact(53, "elephant", "tembo"),
+			Fact(54, "lion", "simba"),
+			Fact(55, "zebra", "punda milia"),
+			Fact(56, "calendar", "kalenda"),
+			Fact(57, "coffee", "kahawa"),
+			Fact(58, "beer", "pombe"),
+			Fact(59, "tea", "chai"),
+			Fact(60, "wine", "mvinyo"),
+			Fact(61, "lightning", "umeme"),
+			Fact(62, "sheep", "kondoo"),
+			Fact(63, "kettle", "birika"),
+			Fact(64, "spoon", "kijiko"),
+			Fact(65, "knife", "kisu"),
+			Fact(66, "fork", "uma"),
+			Fact(67, "bread", "mkate"),
+			Fact(68, "cheese", "jibini"),
+			Fact(69, "shirt", "shati"),
+			Fact(70, "skirt", "sketi"),
+			Fact(71, "shoe", "kiatu"),
+			Fact(72, "glove", "glavu"),
+			Fact(73, "ring", "pete"),
+			Fact(74, "necklace", "mkufu"),
+			Fact(75, "brush", "burashi"),
+			Fact(76, "spade", "sepetu"),
+			Fact(77, "rake", "reki"),
+			Fact(78, "scissors", "mkasi"),
+			Fact(79, "banana", "ndizi"),
+			Fact(80, "coconut", "nazi"),
+			Fact(81, "saw", "msemeno"),
+			Fact(82, "hammer", "nyundo"),
+			Fact(83, "anchor", "nanga"),
+			Fact(84, "bridge", "daraja"),
+			Fact(85, "flute", "filimbi"),
+			Fact(86, "drum", "ngoma"),
+			Fact(87, "trumpet", "tarumbeta"),
+			Fact(88, "bicycle", "baisikeli"),
+			Fact(89, "carrot", "karoti"),
+			Fact(90, "church", "kanisa"),
+			Fact(91, "chicken", "kuku"),
+			Fact(92, "chair", "kiti"),
+			Fact(93, "tomato", "nyanya"),
+			Fact(94, "potato", "viazi"),
+			Fact(95, "gift", "zawadi"),
+			Fact(96, "hurricane", "kimbunga"),
+			Fact(97, "helicopter", "helikopta"),
+			Fact(98, "guitar", "gitaa"),
+			Fact(99, "island", "kisiwa"),
+			Fact(100, "motorcycle", "pikipiki"),
+			Fact(101, "monkey", "tumbili"),
+			Fact(102, "painting", "uchoraji"),
+			Fact(103, "shower", "kuoga"),
+			Fact(104, "spider", "buibui"),
+			Fact(105, "umbrella", "mqavuli"),
+			]
 	
 	for fact in facts:
 		m.add_fact(fact)
@@ -461,7 +559,6 @@ define sequence trial_sequence
 	run present_trial always
 
 define loop while_there_is_time_left
-	set source_file ""
 	set source table
 	set repeat 1000
 	set order random
