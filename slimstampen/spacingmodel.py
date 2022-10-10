@@ -19,10 +19,11 @@ class SpacingModel(object):
 
     def __init__(self):
         self.facts = []
+        self.blocks = []
         self.responses = []
 
-    def add_fact(self, fact):
-        # type: (Fact) -> None
+    def add_fact(self, fact, block):
+        ## type: (Fact) -> None
         """
         Add a fact to the list of study items.
         """
@@ -30,12 +31,13 @@ class SpacingModel(object):
         if next((f for f in self.facts if f.fact_id == fact.fact_id), None):
             raise RuntimeError(
                 "Error while adding fact: There is already a fact with the same ID: {}. Each fact must have a unique ID".format(fact.fact_id))
-
+        print(fact.fact_id)
+        self.blocks.append(block)
         self.facts.append(fact)
 
 
     def register_response(self, response):
-        # type: (Response) -> None
+        ## type: (Response) -> None
         """
         Register a response.
         """
@@ -46,9 +48,15 @@ class SpacingModel(object):
 
         self.responses.append(response)
 
+    def get_response(self, f):
+        for r in self.responses:
+            if r.fact == f:
+                return r.correct
+        return 1
 
-    def get_next_fact(self, current_time):
-        # type: (int) -> (Fact, bool)
+
+    def get_next_fact(self, current_time, block):
+        ## type: (int) -> (Fact, bool)
         """
         Returns a tuple containing the fact that needs to be repeated most urgently and a boolean indicating whether this fact is new (True) or has been presented before (False).
         If none of the previously studied facts needs to be repeated right now, return a new fact instead.
@@ -75,7 +83,7 @@ class SpacingModel(object):
 
 
     def get_rate_of_forgetting(self, time, fact):
-        # type: (int, Fact) -> float
+        ## type: (int, Fact) -> float
         """
         Return the estimated rate of forgetting of the fact at the specified time
         """
@@ -128,7 +136,7 @@ class SpacingModel(object):
 
 
     def estimate_alpha(self, encounters, activation, response, previous_alpha):
-        # type: ([Encounter], float, Response, float) -> float
+        ## type: ([Encounter], float, Response, float) -> float
         """
         Estimate the rate of forgetting parameter (alpha) for an item.
         """
@@ -175,7 +183,7 @@ class SpacingModel(object):
 
 
     def calculate_activation_from_encounters(self, encounters, current_time):
-        # type: ([Encounter], int) -> float
+        ## type: ([Encounter], int) -> float
         included_encounters = [e for e in encounters if e.time < current_time]
 
         if len(included_encounters) == 0:
@@ -185,7 +193,7 @@ class SpacingModel(object):
 
 
     def calculate_predicted_reaction_time_error(self, test_set, decay_adjusted_encounters, reading_time):
-        # type: ([Encounter], [Encounter], Fact) -> float
+        ## type: ([Encounter], [Encounter], Fact) -> float
         """
         Calculate the summed absolute difference between observed response times and those predicted based on a decay adjustment.
         """
