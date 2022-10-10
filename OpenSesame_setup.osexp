@@ -20,7 +20,7 @@ set keyboard_backend psycho
 set height 768
 set fullscreen no
 set form_clicks no
-set foreground white
+set foreground black
 set font_underline no
 set font_size 18
 set font_italic no
@@ -34,7 +34,7 @@ set compensation 0
 set color_backend psycho
 set clock_backend psycho
 set canvas_backend psycho
-set background black
+set background white
 
 define loop block_with_images
 	set source table
@@ -88,18 +88,17 @@ define sequence experiment
 define sketchpad instructions
 	set duration keypress
 	set description "Displays stimuli"
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="Instructions go here. Press any key to begin." x=0 y=0 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes. <br />Good luck!<br />" x=0 y=-2 z_index=0
 
 define sketchpad instructions_1
 	set duration keypress
 	set description "Displays stimuli"
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="Instructions go here. Press any key to begin." x=0 y=0 z_index=0
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="ahaslkdf<br />" x=-192 y=-192 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes. <br />Good luck!<br />" x=0 y=0 z_index=0
 
 define sketchpad instructions_1_1
 	set duration keypress
 	set description "Displays stimuli"
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="Instructions go here. Press any key to begin." x=0 y=0 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes, and try to do this as fast as possible. <br />Good luck!<br />" x=0 y=0 z_index=0
 
 define inline_script learning_session_setup
 	set description "Executes Python code"
@@ -114,12 +113,21 @@ define inline_script learning_session_setup
 	var.trial_num = 1
 	
 	# Settings
-	var.session_duration = 10000
+	var.session_duration = 20000
 	var.feedback_duration = 800
 	var.inter_trial_interval = 200
 	var.keep_count = 0
 	__end__
 	set _prepare ""
+
+define sketchpad main_instructions
+	set duration keypress
+	set description "Displays stimuli"
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Welcome!<br /><br />This experiment consists of three tasks. In these tasks, you are asked to discriminate between the following: shapes, colors, and letters/numbers. <br /><br />Each block will start with more detailed instructions and a short practice session to get familiar with the task.<br /><br />Please press a key to continue." x=0 y=0 z_index=0
+
+define sketchpad new_sketchpad
+	set duration keypress
+	set description "Displays stimuli"
 
 define inline_script present_trial_with_images
 	set description "Executes Python code"
@@ -137,7 +145,7 @@ define inline_script present_trial_with_images
 	my_canvas.text(prompt, font_size = 30)
 	img_name = str(next_fact.fact_id) + ".png"
 	img_name = exp.get_file(img_name)
-	my_canvas.image(img_name,False, x = -200, scale = 0.5)
+	my_canvas.image(img_name, True, y = -200, scale = 0.3)
 	if new:
 		my_canvas.text(answer, y = 50, font_size = 20)
 	my_canvas.prepare()
@@ -176,6 +184,9 @@ define inline_script present_trial_with_images
 		# Update what's on screen'
 		my_canvas.clear()
 		my_canvas.text(prompt, font_size = 30)
+		img_name = str(next_fact.fact_id) + ".png"
+		img_name = exp.get_file(img_name)
+		my_canvas.image(img_name, True, y = -200, scale = 0.3)
 		if new:
 			my_canvas.text(answer, y = 50, font_size = 20)
 		my_canvas.text(keyboard_response, y = 100)
@@ -237,7 +248,7 @@ define inline_script present_trial_with_images_after_error
 		if check == False:
 			img_name = str(next_fact.fact_id) + ".png"
 			img_name = exp.get_file(img_name)
-			my_canvas.image(img_name,False, y = -200, x = -200, scale = 0.1)
+			my_canvas.image(img_name, True, y = -200, scale = 0.3)
 	my_canvas.prepare()
 	my_canvas.show()
 	
@@ -276,6 +287,12 @@ define inline_script present_trial_with_images_after_error
 		my_canvas.text(prompt, font_size = 30)
 		if new:
 			my_canvas.text(answer, y = 50, font_size = 20)
+		else:
+			check = m_with_images_after_error.get_response(next_fact)
+			if check == False:
+				img_name = str(next_fact.fact_id) + ".png"
+				img_name = exp.get_file(img_name)
+				my_canvas.image(img_name, True, y = -200, scale = 0.3)
 		my_canvas.text(keyboard_response, y = 100)
 		my_canvas.prepare()
 		my_canvas.show()
@@ -418,6 +435,8 @@ define inline_script save_data
 define inline_script slimstampen_setup
 	set description "Executes Python code"
 	___run__
+	import random
+	
 	m_without_images = SpacingModel()
 	m_with_images_after_error = SpacingModel()
 	m_with_images = SpacingModel()
@@ -530,6 +549,7 @@ define inline_script slimstampen_setup
 			Fact(105, "umbrella", "mqavuli"),
 			]
 	
+	random.shuffle(facts)
 	count = 1
 	for fact in facts:
 		if count <= 35:
@@ -577,10 +597,11 @@ define inline_script slimstampen_setup
 	        self.facts.append(fact)
 	
 	    def get_response(self, f):
+	        check = True
 	        for r in self.responses:
 	            if r.fact == f:
-	                return r.correct
-	        return True
+	                check = r.correct
+	        return check
 	    
 	    def register_response(self, response):
 	        # type: (Response) -> None
