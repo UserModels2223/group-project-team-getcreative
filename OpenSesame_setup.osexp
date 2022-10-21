@@ -1,6 +1,6 @@
 ---
 API: 2.1
-OpenSesame: 3.3.10
+OpenSesame: 3.3.12
 Platform: nt
 ---
 set width 1024
@@ -26,7 +26,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:\\Users\\stefa\\Uni\\UM\\group-project-team-getcreative"
+set experiment_path "C:/Users/stefa/Uni/UM/group-project-team-getcreative"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -80,8 +80,6 @@ define sequence experiment
 	run learning_session_setup always
 	run block_without_images always
 	run instructions_1 always
-	run block_with_images_after_error always
-	run instructions_1_1 always
 	run block_with_images always
 	run save_data always
 
@@ -98,7 +96,7 @@ define sketchpad instructions_1
 define sketchpad instructions_1_1
 	set duration keypress
 	set description "Displays stimuli"
-	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes, and try to do this as fast as possible. <br />Good luck!<br />" x=0 y=0 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes. <br />Good luck!<br />" x=0 y=0 z_index=0
 
 define inline_script learning_session_setup
 	set description "Executes Python code"
@@ -113,7 +111,7 @@ define inline_script learning_session_setup
 	var.trial_num = 1
 	
 	# Settings
-	var.session_duration = 20000
+	var.session_duration = 10000
 	var.feedback_duration = 800
 	var.inter_trial_interval = 200
 	var.keep_count = 0
@@ -134,9 +132,10 @@ define inline_script present_trial_with_images
 	___run__
 	var.time_up = False
 	trial_start_time = clock.time()
+	import time as misschien
 	
 	# Get next fact from the model
-	next_fact, new = m_with_images.get_next_fact(current_time = trial_start_time)
+	next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
 	prompt = next_fact.question
 	answer = next_fact.answer
 	
@@ -184,8 +183,6 @@ define inline_script present_trial_with_images
 		# Update what's on screen'
 		my_canvas.clear()
 		my_canvas.text(prompt, font_size = 30)
-		img_name = str(next_fact.fact_id) + ".png"
-		img_name = exp.get_file(img_name)
 		my_canvas.image(img_name, True, y = -200, scale = 0.3)
 		if new:
 			my_canvas.text(answer, y = 50, font_size = 20)
@@ -198,8 +195,8 @@ define inline_script present_trial_with_images
 	correct = keyboard_response == answer
 	
 	# Log response
-	response = Response(next_fact, trial_start_time, rt, correct)
-	m_with_images.register_response(response) 
+	response = Response(next_fact, trial_start_time, rt, correct, "with")
+	model.register_response(response) 
 	
 	# Show feedback
 	feedback_color = "green" if correct else "red"
@@ -228,13 +225,11 @@ define inline_script present_trial_with_images
 define inline_script present_trial_with_images_after_error
 	set description "Executes Python code"
 	___run__
-	import os
-	
 	var.time_up = False
 	trial_start_time = clock.time()
 	
 	# Get next fact from the model
-	next_fact, new = m_with_images_after_error.get_next_fact(current_time = trial_start_time)
+	next_fact, new = model.get_next_fact(current_time = trial_start_time, "with")
 	prompt = next_fact.question
 	answer = next_fact.answer
 	
@@ -244,7 +239,7 @@ define inline_script present_trial_with_images_after_error
 	if new:
 		my_canvas.text(answer, y = 50, font_size = 20)
 	else:
-		check = m_with_images_after_error.get_response(next_fact)
+		check = model.get_response(next_fact)
 		if check == False:
 			img_name = str(next_fact.fact_id) + ".png"
 			img_name = exp.get_file(img_name)
@@ -288,7 +283,7 @@ define inline_script present_trial_with_images_after_error
 		if new:
 			my_canvas.text(answer, y = 50, font_size = 20)
 		else:
-			check = m_with_images_after_error.get_response(next_fact)
+			check = model.get_response(next_fact)
 			if check == False:
 				img_name = str(next_fact.fact_id) + ".png"
 				img_name = exp.get_file(img_name)
@@ -303,7 +298,7 @@ define inline_script present_trial_with_images_after_error
 	
 	# Log response
 	response = Response(next_fact, trial_start_time, rt, correct)
-	m_with_images_after_error.register_response(response) 
+	model.register_response(response) 
 	
 	# Show feedback
 	feedback_color = "green" if correct else "red"
@@ -337,7 +332,7 @@ define inline_script present_trial_without_images
 	trial_start_time = clock.time()
 	
 	# Get next fact from the model
-	next_fact, new = m_without_images.get_next_fact(current_time = trial_start_time)
+	next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "without")
 	prompt = next_fact.question
 	answer = next_fact.answer
 	
@@ -393,8 +388,8 @@ define inline_script present_trial_without_images
 	correct = keyboard_response == answer
 	
 	# Log response
-	response = Response(next_fact, trial_start_time, rt, correct)
-	m_without_images.register_response(response) 
+	response = Response(next_fact, trial_start_time, rt, correct, "without")
+	model.register_response(response) 
 	
 	# Show feedback
 	feedback_color = "green" if correct else "red"
@@ -425,9 +420,7 @@ define inline_script save_data
 	set description "Executes Python code"
 	___run__
 	# Write the SlimStampen data to the OpenSesame log file
-	dat = m_without_images.export_data()
-	dat += m_with_images_after_error.export_data()
-	dat += m_with_images.export_data()
+	dat = model.export_data()
 	log.write(dat)
 	__end__
 	set _prepare ""
@@ -437,9 +430,7 @@ define inline_script slimstampen_setup
 	___run__
 	import random
 	
-	m_without_images = SpacingModel()
-	m_with_images_after_error = SpacingModel()
-	m_with_images = SpacingModel()
+	model = SpacingModel()
 	
 	# Add some study facts to the model (you could also read them from a CSV file)
 	facts= [Fact(1, "five", "tano"),
@@ -451,12 +442,10 @@ define inline_script slimstampen_setup
 			Fact(7, "tree", "mti"),
 			Fact(8, "leaf", "jani"),
 			Fact(9, "egg", "yai"),
-			Fact(10, "bone", "mfupa"),
 			Fact(11, "feather", "unyoya"),
 			Fact(12, "foot", "mguu"),
 			Fact(13, "eye", "jicho"),
 			Fact(14, "heart", "moyo"),
-			Fact(15, "sun", "jua"),
 			Fact(16, "moon", "mwezi"),
 			Fact(17, "sea", "bahari"),
 			Fact(18, "sand", "mchanga"),
@@ -470,14 +459,12 @@ define inline_script slimstampen_setup
 			Fact(26, "plant", "kupanda"),
 			Fact(27, "city", "mji"),
 			Fact(28, "book", "kitabu"),
-			Fact(29, "car", "gari"),
 			Fact(30, "ship", "meli"),
 			Fact(31, "wheel", "gurudumu"),
 			Fact(32, "plane", "ndege"),
 			Fact(33, "table", "meza"),
 			Fact(34, "money", "fedha"),
 			Fact(35, "bed", "kitanda"),
-			Fact(36, "circle", "mzunguko"),
 			Fact(37, "train", "treni"),
 			Fact(38, "window", "dirisha"),
 			Fact(39, "cow", "ng'ombe"),
@@ -485,14 +472,11 @@ define inline_script slimstampen_setup
 			Fact(41, "garden", "bustani"),
 			Fact(42, "key", "ufunguo"),
 			Fact(43, "cat", "paka"),
-			Fact(44, "doctor", "daktari"),
 			Fact(45, "soldier", "askari"),
 			Fact(46, "dollar", "dola"),
-			Fact(47, "clock", "saa"),
 			Fact(48, "gun", "bunduki"),
 			Fact(49, "duck", "bata"),
 			Fact(50, "magnet", "sumaku"),
-			Fact(51, "apple", "mboni"),
 			Fact(52, "giraffe", "twiga"),
 			Fact(53, "elephant", "tembo"),
 			Fact(54, "lion", "simba"),
@@ -505,7 +489,6 @@ define inline_script slimstampen_setup
 			Fact(61, "lightning", "umeme"),
 			Fact(62, "sheep", "kondoo"),
 			Fact(63, "kettle", "birika"),
-			Fact(64, "spoon", "kijiko"),
 			Fact(65, "knife", "kisu"),
 			Fact(66, "fork", "uma"),
 			Fact(67, "bread", "mkate"),
@@ -552,12 +535,10 @@ define inline_script slimstampen_setup
 	random.shuffle(facts)
 	count = 1
 	for fact in facts:
-		if count <= 35:
-			m_without_images.add_fact(fact)
-		elif count <= 70:
-			m_with_images_after_error.add_fact(fact)
-		elif count <= 105:
-			m_with_images.add_fact(fact)
+		if count <= 49:
+			model.add_fact(fact, "without")
+		else :
+			model.add_fact(fact, "with")
 		count += 1
 	__end__
 	___prepare__
@@ -567,7 +548,7 @@ define inline_script slimstampen_setup
 	from collections import namedtuple
 	
 	Fact = namedtuple("Fact", "fact_id, question, answer")
-	Response = namedtuple("Response", "fact, start_time, rt, correct")
+	Response = namedtuple("Response", "fact, start_time, rt, correct, version")
 	Encounter = namedtuple("Encounter", "activation, time, reaction_time, decay")
 	
 	
@@ -582,19 +563,28 @@ define inline_script slimstampen_setup
 	
 	    def __init__(self):
 	        self.facts = []
+	        self.image_facts = []
 	        self.responses = []
 	
-	    def add_fact(self, fact):
+	    def add_fact(self, fact, version):
 	        # type: (Fact) -> None
 	        """
 	        Add a fact to the list of study items.
 	        """
-	        # Ensure that a fact with this ID does not exist already
-	        if next((f for f in self.facts if f.fact_id == fact.fact_id), None):
-	            raise RuntimeError(
-	                "Error while adding fact: There is already a fact with the same ID: {}. Each fact must have a unique ID".format(fact.fact_id))
+	        if version == "without":
+	            # Ensure that a fact with this ID does not exist already
+	            if next((f for f in self.facts if f.fact_id == fact.fact_id), None):
+	                raise RuntimeError(
+	                    "Error while adding fact: There is already a fact with the same ID: {}. Each fact must have a unique ID".format(fact.fact_id))
 	
-	        self.facts.append(fact)
+	            self.facts.append(fact)
+	        else: 
+	            # Ensure that a fact with this ID does not exist already
+	            if next((f for f in self.image_facts if f.fact_id == fact.fact_id), None):
+	                raise RuntimeError(
+	                    "Error while adding fact: There is already a fact with the same ID: {}. Each fact must have a unique ID".format(fact.fact_id))
+	
+	            self.image_facts.append(fact)
 	
 	    def get_response(self, f):
 	        check = True
@@ -616,31 +606,52 @@ define inline_script slimstampen_setup
 	        self.responses.append(response)
 	
 	
-	    def get_next_fact(self, current_time):
+	    def get_next_fact(self, current_time, version):
 	        # type: (int) -> (Fact, bool)
 	        """
 	        Returns a tuple containing the fact that needs to be repeated most urgently and a boolean indicating whether this fact is new (True) or has been presented before (False).
 	        If none of the previously studied facts needs to be repeated right now, return a new fact instead.
 	        """
-	        # Calculate all fact activations in the near future
-	        fact_activations = [(f, self.calculate_activation(current_time + self.LOOKAHEAD_TIME, f)) for f in self.facts]
+	        if version == "without":
+	            # Calculate all fact activations in the near future
+	            fact_activations = [(f, self.calculate_activation(current_time + self.LOOKAHEAD_TIME, f)) for f in self.facts]
 	
-	        seen_facts = [(f, a) for (f, a) in fact_activations if a > -float("inf")]
-	        not_seen_facts = [(f, a) for (f, a) in fact_activations if a == -float("inf")]
+	            seen_facts = [(f, a) for (f, a) in fact_activations if a > -float("inf")]
+	            not_seen_facts = [(f, a) for (f, a) in fact_activations if a == -float("inf")]
 	
-	        # Prevent an immediate repetition of the same fact
-	        if len(seen_facts) > 2:
-	            last_response = self.responses[-1]
-	            seen_facts = [(f, a) for (f, a) in seen_facts if f.fact_id != last_response.fact.fact_id]
+	            # Prevent an immediate repetition of the same fact
+	            if len(seen_facts) > 2:
+	                last_response = self.responses[-1]
+	                seen_facts = [(f, a) for (f, a) in seen_facts if f.fact_id != last_response.fact.fact_id]
 	
-	        # Reinforce the weakest fact with an activation below the threshold
-	        seen_facts_below_threshold = [(f, a) for (f, a) in seen_facts if a < self.FORGET_THRESHOLD]
-	        if len(not_seen_facts) == 0 or len(seen_facts_below_threshold) > 0:
-	            weakest_fact = min(seen_facts, key = lambda t: t[1])
-	            return((weakest_fact[0], False))
+	            # Reinforce the weakest fact with an activation below the threshold
+	            seen_facts_below_threshold = [(f, a) for (f, a) in seen_facts if a < self.FORGET_THRESHOLD]
+	            if len(not_seen_facts) == 0 or len(seen_facts_below_threshold) > 0:
+	                weakest_fact = min(seen_facts, key = lambda t: t[1])
+	                return((weakest_fact[0], False))
 	
-	        # If none of the previously seen facts has an activation below the threshold, return a new fact
-	        return((not_seen_facts[0][0], True))
+	            # If none of the previously seen facts has an activation below the threshold, return a new fact
+	            return((not_seen_facts[0][0], True))
+	        else:
+	            # Calculate all fact activations in the near future
+	            fact_activations = [(f, self.calculate_activation(current_time + self.LOOKAHEAD_TIME, f)) for f in self.image_facts]
+	
+	            seen_facts = [(f, a) for (f, a) in fact_activations if a > -float("inf")]
+	            not_seen_facts = [(f, a) for (f, a) in fact_activations if a == -float("inf")]
+	
+	            # Prevent an immediate repetition of the same fact
+	            if len(seen_facts) > 2:
+	                last_response = self.responses[-1]
+	                seen_facts = [(f, a) for (f, a) in seen_facts if f.fact_id != last_response.fact.fact_id]
+	
+	            # Reinforce the weakest fact with an activation below the threshold
+	            seen_facts_below_threshold = [(f, a) for (f, a) in seen_facts if a < self.FORGET_THRESHOLD]
+	            if len(not_seen_facts) == 0 or len(seen_facts_below_threshold) > 0:
+	                weakest_fact = min(seen_facts, key = lambda t: t[1])
+	                return((weakest_fact[0], False))
+	
+	            # If none of the previously seen facts has an activation below the threshold, return a new fact
+	            return((not_seen_facts[0][0], True))
 	
 	
 	    def get_rate_of_forgetting(self, time, fact):
@@ -818,7 +829,8 @@ define inline_script slimstampen_setup
 	
 	        dat_resp = pd.DataFrame(self.responses)
 	        dat_facts = pd.DataFrame([r.fact for r in self.responses])
-	        dat = pd.concat([dat_resp, dat_facts], axis = 1)
+	        dat_version = pd.DataFrame([r.version for r in self.responses])
+	        dat = pd.concat([dat_resp, dat_facts, dat_version], axis = 1)
 	
 	        # Add column for rate of forgetting estimate after each observation
 	        dat["alpha"] = dat.apply(calc_rof, axis = 1)
