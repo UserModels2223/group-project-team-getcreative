@@ -113,8 +113,13 @@ define inline_script learning_session_setup
 	var.feedback_duration = 800
 	var.inter_trial_interval = 200
 	var.keep_count = 0
-	var.a_with = 10.0
-	var.a_without = 10.0
+	
+	#initialize activation-functions
+	var.a = 50
+	
+	#initialize activation-counters (default = 10)
+	var.counter_with = 0
+	var.counter_without = 0
 	__end__
 	set _prepare ""
 
@@ -126,6 +131,160 @@ define sketchpad main_instructions
 define sketchpad new_sketchpad
 	set duration keypress
 	set description "Displays stimuli"
+
+define inline_script present_trial
+	set description "Executes Python code"
+	___run__
+	import numpy as np
+	import math
+	
+	def distance(a, b):
+	    if (a == b):
+	        return 0
+	    elif (a < 0) and (b < 0) or (a > 0) and (b > 0):
+	        if (a < b):
+	            return (abs(abs(a) - abs(b)))
+	        else:
+	            return -(abs(abs(a) - abs(b)))
+	    else:
+	        return math.copysign((abs(a) + abs(b)),b)
+									
+	var.time_up = False
+	trial_start_time = clock.time()
+	
+	# Current fact (0 = without, 1 = with)
+	current = 0
+	
+	# Get next fact from the model
+	#First 6 trials, the given facts are random "with" or "without"
+	if var.trial_num < 6:
+		if random.randint(1,10) <= 5:
+			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
+			current = 0
+		else: 
+			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "without")
+			current = 1
+	#After 6 trials, not random anymore
+	else:
+		if random.uniform(0.0,1.0) < var.a:
+			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
+			current = 0
+		else: 
+			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "without")
+			current = 1
+		
+	prompt = next_fact.question
+	answer = next_fact.answer
+	
+	img_name = str(next_fact.fact_id) + ".png"
+	img_name = exp.get_file(img_name)
+	# Show prompt
+	
+	my_canvas = Canvas(color = 'black', background_color = 'white')
+	my_canvas.text(prompt, font_size = 30)
+	if current == 1:
+		my_canvas.image(img_name, True, y = -200, scale = 0.3)
+	if new:
+		my_canvas.text(answer, y = 50, font_size = 20)
+	my_canvas.prepare()
+	my_canvas.show()
+	
+	# Listen for keyboard input and show keypresses on screen as they occur
+	my_keyboard = Keyboard()
+	keyboard_response = ""
+	erased_answer = False
+	rt = float("inf")
+	
+	# Keep listening for key presses until the user presses Enter
+	while True:
+		key, time = my_keyboard.get_key()
+		
+		# The first keypress determines the response time
+		if keyboard_response == "" and not erased_answer:
+			rt = clock.time() - trial_start_time
+		
+		if key == "return":
+			break
+			
+		if key == "backspace":
+			keyboard_response = keyboard_response[:-1]
+			# If the answer is completely erased, the RT is no longer informative
+			if keyboard_response == "":
+				erased_answer = True
+				rt = float("inf")
+		
+		elif key == "space":
+			keyboard_response += " "
+		
+		else:
+			keyboard_response += my_keyboard.to_chr(key)
+	
+		# Update what's on screen'
+		# Update what's on screen'
+		my_canvas = Canvas(color = 'black', background_color = 'white')
+		my_canvas.text(prompt, font_size = 30)
+		if current == 1:
+			my_canvas.image(img_name, True, y = -200, scale = 0.3)
+		if new:
+			my_canvas.text(answer, y = 50, font_size = 20)
+		my_canvas.text(keyboard_response, y = 100)
+		my_canvas.show()
+	
+	# Check if the response is correct
+	correct = keyboard_response == answer
+	
+	# Log response
+	if current == 0:
+		response = Response(next_fact, trial_start_time, rt, correct, "without")
+	else:
+		response = Response(next_fact, trial_start_time, rt, correct, "without")
+		
+	model.register_response(response) 
+	
+	# Show feedback
+	feedback_color = "green" if correct else "red"
+	my_canvas.text(keyboard_response, y = 100, color = feedback_color)
+	if not correct:
+		my_canvas.text(answer, y = 150)
+		if not new:
+			if current == 0:
+				var.counter_without -= 1
+			else: 
+				var.counter_with -= 1
+	else:
+		if not new:
+			if current == 0:
+				var.counter_without += 1
+			else: 
+				var.counter_with += 1
+	my_canvas.prepare()
+	my_canvas.show()
+	clock.sleep(var.feedback_duration)
+	
+	# Clear the screen between trials
+	my_canvas = Canvas(color = 'black', background_color = 'white')
+	my_canvas.prepare()
+	my_canvas.show()
+	clock.sleep(var.inter_trial_interval)
+	
+	# Check if time is up
+	if clock.time() - var.session_start_time - (var.keep_count*var.session_duration) >= var.session_duration:
+		var.time_up = True
+		var.keep_count += 1
+		
+	# Increment trial number
+	var.trial_num += 1
+	
+	#update activation functions
+	x = distance(var.counter_with, var.counter_without)
+	var.a = 1 / (1 + np.exp(-x))
+	
+	print("a: ", var.a)
+	print("x: ", x)
+	print("counter_without: ", var.counter_without)
+	print("counter_with: ", var.counter_with)
+	__end__
+	set _prepare ""
 
 define inline_script present_trial_with_images
 	set description "Executes Python code"
@@ -325,149 +484,6 @@ define inline_script present_trial_with_images_after_error
 	__end__
 	set _prepare ""
 
-define inline_script present_trial_without_images
-	set description "Executes Python code"
-	___run__
-	var.time_up = False
-	trial_start_time = clock.time()
-	
-	#initialize activation-counters (default = 10)
-	counter_with = 0
-	counter_without = 0
-	
-	# Current fact (0 = without, 1 = with)
-	current = 0
-	
-	# Get next fact from the model
-	#First 6 trials, the given facts are random "with" or "without"
-	if var.trial_num < 6:
-		if random.randint(1,10) <= 5:
-			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "without")
-			current = 0
-		else: 
-			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
-			current = 1
-	#After 6 trials, not random anymore
-	else:
-		if var.a_with > var.a_without:
-			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "without")
-			current = 0
-		else: 
-			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
-			current = 1
-		
-	prompt = next_fact.question
-	answer = next_fact.answer
-	
-	img_name = str(next_fact.fact_id) + ".png"
-	img_name = exp.get_file(img_name)
-	# Show prompt
-	
-	my_canvas = Canvas(color = 'black', background_color = 'white')
-	my_canvas.text(prompt, font_size = 30)
-	if current == 1:
-		my_canvas.image(img_name, True, y = -200, scale = 0.3)
-	if new:
-		my_canvas.text(answer, y = 50, font_size = 20)
-	my_canvas.prepare()
-	my_canvas.show()
-	
-	# Listen for keyboard input and show keypresses on screen as they occur
-	my_keyboard = Keyboard()
-	keyboard_response = ""
-	erased_answer = False
-	rt = float("inf")
-	
-	# Keep listening for key presses until the user presses Enter
-	while True:
-		key, time = my_keyboard.get_key()
-		
-		# The first keypress determines the response time
-		if keyboard_response == "" and not erased_answer:
-			rt = clock.time() - trial_start_time
-		
-		if key == "return":
-			break
-			
-		if key == "backspace":
-			keyboard_response = keyboard_response[:-1]
-			# If the answer is completely erased, the RT is no longer informative
-			if keyboard_response == "":
-				erased_answer = True
-				rt = float("inf")
-		
-		elif key == "space":
-			keyboard_response += " "
-		
-		else:
-			keyboard_response += my_keyboard.to_chr(key)
-	
-		# Update what's on screen'
-		# Update what's on screen'
-		my_canvas = Canvas(color = 'black', background_color = 'white')
-		my_canvas.text(prompt, font_size = 30)
-		if current == 1:
-			my_canvas.image(img_name, True, y = -200, scale = 0.3)
-		if new:
-			my_canvas.text(answer, y = 50, font_size = 20)
-		my_canvas.text(keyboard_response, y = 100)
-		my_canvas.show()
-	
-	# Check if the response is correct
-	correct = keyboard_response == answer
-	
-	# Log response
-	if current == 0:
-		response = Response(next_fact, trial_start_time, rt, correct, "without")
-	else:
-		response = Response(next_fact, trial_start_time, rt, correct, "without")
-		
-	model.register_response(response) 
-	
-	# Show feedback
-	feedback_color = "green" if correct else "red"
-	my_canvas.text(keyboard_response, y = 100, color = feedback_color)
-	if not correct:
-		my_canvas.text(answer, y = 150)
-		if current == 0:
-			counter_without -= 1
-		else: 
-			counter_with -= 1
-	else:
-		if current == 0:
-			counter_without += 1
-		else: 
-			counter_with += 1
-	my_canvas.prepare()
-	my_canvas.show()
-	clock.sleep(var.feedback_duration)
-	
-	# Clear the screen between trials
-	my_canvas = Canvas(color = 'black', background_color = 'white')
-	my_canvas.prepare()
-	my_canvas.show()
-	clock.sleep(var.inter_trial_interval)
-	
-	# Check if time is up
-	if clock.time() - var.session_start_time - (var.keep_count*var.session_duration) >= var.session_duration:
-		var.time_up = True
-		var.keep_count += 1
-		
-	# Increment trial number
-	var.trial_num += 1
-	
-	#update activation functions
-	var.a_without = 1.5 ** counter_without
-	var.a_with = 1.5 ** counter_with
-	
-	
-	print("without: ", var.a_without)
-	print("with: ", var.a_with)
-	print("counter_without: ", counter_without)
-	print("couner_with: ", counter_with)
-	__end__
-	set _prepare ""
-
 define inline_script save_data
 	set description "Executes Python code"
 	___run__
@@ -481,7 +497,6 @@ define inline_script slimstampen_setup
 	set description "Executes Python code"
 	___run__
 	import random
-	import math
 	
 	model = SpacingModel()
 	
@@ -914,5 +929,5 @@ define sequence trial_sequence_with_images_after_error
 define sequence trial_sequence_without_images
 	set flush_keyboard yes
 	set description "Runs a number of items in sequence"
-	run present_trial_without_images always
+	run present_trial always
 
