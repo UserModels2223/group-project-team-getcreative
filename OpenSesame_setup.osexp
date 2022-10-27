@@ -156,8 +156,8 @@ define inline_script present_trial
 	current = 0
 	
 	# Get next fact from the model
-	#First 6 trials, the given facts are random "with" or "without"
-	if var.trial_num < 6:
+	#First 15 trials, the given facts are random "with" or "without"
+	if var.trial_num < 15:
 		if random.randint(1,10) <= 5:
 			next_fact, new = model.get_next_fact(current_time = trial_start_time, version = "with")
 			current = 0
