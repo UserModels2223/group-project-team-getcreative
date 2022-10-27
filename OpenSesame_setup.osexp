@@ -84,7 +84,7 @@ define sequence experiment
 define sketchpad instructions
 	set duration keypress
 	set description "Displays stimuli"
-	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="In this block, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes. <br />Good luck!<br />" x=0 y=-2 z_index=0
+	draw textline center=1 color=black font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=always text="During this experiment, you will be shown English words that you have to translate to Swahili. The Swahilian translation of the word is given when a new word is presented for the first time. <br />For each word, try to type the Swahili translation without any mistakes. Being correct is more important than being fast. <br />Good luck!<br />" x=0 y=-2 z_index=0
 
 define sketchpad instructions_1
 	set duration keypress

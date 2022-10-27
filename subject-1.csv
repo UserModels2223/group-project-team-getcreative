@@ -1,9 +1,0 @@
-trial,start_time,rt,correct,version,fact_id,question,answer,0,alpha
-1,8841.796399996383,820.8011000024271,True,without,71,shoe,kiatu,without,0.3
-2,11320.025399996666,867.8316000004997,False,without,71,shoe,kiatu,without,0.3
-3,13917.652700001781,inf,False,without,55,zebra,punda milia,without,0.3
-4,17931.1155999967,319.3847000002279,False,without,55,zebra,punda milia,without,0.3
-5,20546.282199997222,705.5267000032472,False,with,101,monkey,tumbili,with,0.3
-6,23421.541499999876,512.031999998726,False,with,101,monkey,tumbili,with,0.3
-7,26147.11150000221,634.9428999965312,False,with,93,tomato,nyanya,with,0.3
-
