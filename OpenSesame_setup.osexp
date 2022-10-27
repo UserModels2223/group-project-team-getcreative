@@ -1,6 +1,6 @@
 ---
 API: 2.1
-OpenSesame: 3.3.3
+OpenSesame: 3.3.12
 Platform: nt
 ---
 set width 1024
@@ -26,7 +26,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:\\Users\\melle\\Documents\\user_models\\group-project-team-getcreative"
+set experiment_path "C:\\Users\\stefa\\Uni\\UM\\group-project-team-getcreative"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -275,7 +275,7 @@ define inline_script present_trial
 	# Increment trial number
 	var.trial_num += 1
 	
-	#update activation functions
+	#update sigmoid activation function
 	x = distance(var.counter_with, var.counter_without)
 	var.a = 1 / (1 + np.exp(-x))
 	
@@ -535,7 +535,6 @@ define inline_script slimstampen_setup
 			Fact(35, "bed", "kitanda"),
 			Fact(37, "train", "treni"),
 			Fact(38, "window", "dirisha"),
-			Fact(39, "cow", "ng'ombe"),
 			Fact(40, "bear", "kubeba"),
 			Fact(41, "garden", "bustani"),
 			Fact(42, "key", "ufunguo"),
