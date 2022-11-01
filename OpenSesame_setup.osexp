@@ -1,6 +1,6 @@
 ---
 API: 2.1
-OpenSesame: 3.3.3
+OpenSesame: 3.3.12
 Platform: nt
 ---
 set width 1024
@@ -26,7 +26,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:\\Users\\melle\\Documents\\user_models\\group-project-team-getcreative"
+set experiment_path "C:\\Users\\stefa\\Uni\\UM\\group-project-team-getcreative"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -109,13 +109,13 @@ define inline_script learning_session_setup
 	var.trial_num = 1
 	
 	# Settings
-	var.session_duration = 600000
+	var.session_duration = 6000
 	var.feedback_duration = 800
 	var.inter_trial_interval = 200
 	var.keep_count = 0
 	
 	#initialize activation-functions
-	var.a = 50
+	var.a = 0
 	
 	#initialize activation-counters (default = 10)
 	var.counter_with = 0
@@ -235,9 +235,9 @@ define inline_script present_trial
 	
 	# Log response
 	if current == 0:
-		response = Response(next_fact, trial_start_time, rt, correct, "without")
+		response = Response(next_fact, trial_start_time, rt, correct, "without", var.a)
 	else:
-		response = Response(next_fact, trial_start_time, rt, correct, "without")
+		response = Response(next_fact, trial_start_time, rt, correct, "without", var.a)
 		
 	model.register_response(response) 
 	
@@ -615,7 +615,7 @@ define inline_script slimstampen_setup
 	from collections import namedtuple
 	
 	Fact = namedtuple("Fact", "fact_id, question, answer")
-	Response = namedtuple("Response", "fact, start_time, rt, correct, version")
+	Response = namedtuple("Response", "fact, start_time, rt, correct, version, activation")
 	Encounter = namedtuple("Encounter", "activation, time, reaction_time, decay")
 	
 	
@@ -897,7 +897,8 @@ define inline_script slimstampen_setup
 	        dat_resp = pd.DataFrame(self.responses)
 	        dat_facts = pd.DataFrame([r.fact for r in self.responses])
 	        dat_version = pd.DataFrame([r.version for r in self.responses])
-	        dat = pd.concat([dat_resp, dat_facts, dat_version], axis = 1)
+	        dat_activation = pd.DataFrame([r.activation for r in self.responses])
+	        dat = pd.concat([dat_resp, dat_facts, dat_version, dat_activation], axis = 1)
 	
 	        # Add column for rate of forgetting estimate after each observation
 	        dat["alpha"] = dat.apply(calc_rof, axis = 1)

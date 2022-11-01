@@ -1,0 +1,5 @@
+trial,start_time,rt,correct,version,activation,fact_id,question,answer,0,0,alpha
+1,6823.092400001769,1468.173500001285,True,without,0.0,9,egg,yai,without,0.0,0.3
+2,10089.077600001474,643.2996000003186,True,without,0.5,25,picture,picha,without,0.5,0.3
+3,12386.394000001019,464.27500000208966,True,without,0.5,25,picture,picha,without,0.5,0.3
+
