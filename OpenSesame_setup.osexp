@@ -109,7 +109,7 @@ define inline_script learning_session_setup
 	var.trial_num = 1
 	
 	# Settings
-	var.session_duration = 6000
+	var.session_duration = 600000
 	var.feedback_duration = 800
 	var.inter_trial_interval = 200
 	var.keep_count = 0
@@ -235,7 +235,7 @@ define inline_script present_trial
 	
 	# Log response
 	if current == 0:
-		response = Response(next_fact, trial_start_time, rt, correct, "without", var.a)
+		response = Response(next_fact, trial_start_time, rt, correct, "with", var.a)
 	else:
 		response = Response(next_fact, trial_start_time, rt, correct, "without", var.a)
 		
